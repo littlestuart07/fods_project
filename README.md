@@ -1,148 +1,143 @@
-# FODS-DA – Health Risk Data Integration & Modeling
+FODS Project – Health Risk Data Integration & Clustering
 
-This project performs end-to-end data analysis and machine learning on health-related datasets (diabetes, heart disease, and smoking behavior).
+This project performs data integration, exploratory data analysis (EDA), and clustering on healthcare datasets related to diabetes, heart disease, and smoking behavior.
 
-It is organized into two main notebooks:
+The goal is to identify relationships between lifestyle factors such as BMI, glucose level, age, and smoking habits that influence chronic diseases.
 
-- `combined_analysis.ipynb`
-- `models.ipynb`
+1. Project Overview
 
----
+The project combines multiple healthcare datasets and applies EDA and clustering techniques to discover hidden patterns in health indicators.
 
-## 1. Project Overview
+Main analysis performed on:
 
-### Data cleaning, integration & EDA
+BMI vs Glucose
+BMI vs Age
+Glucose vs Age
 
-Notebook: `combined_analysis.ipynb`
+Clustering techniques used:
 
-**Goals:**
-- Standardize and clean three separate health datasets.
-- Merge them into a single, analysis-ready table.
-- Handle missing values and engineer additional features.
-- Perform basic Exploratory Data Analysis (EDA).
+K-Means Clustering
+Agglomerative (Hierarchical) Clustering
+Dendrogram Visualization
+2. Dataset Files
 
-**Input files:**
-- `diabetes.csv` – diabetes dataset
-- `heart.csv` – heart disease dataset
-- `smoking.csv` – smoking behavior dataset
+The following datasets are used:
 
-**Key steps:**
-- **Column standardization**: convert all column names to lowercase for consistency.
-- **Feature selection**:
-  - Diabetes: `age`, `glucose`, `bloodpressure`, `bmi`, `outcome`
-  - Heart: `age`, `chol`, `trestbps` → renamed to `bloodpressure`, `sex`, `target` → renamed to `heart_disease`
-  - Smoking: `age`, `gender`, `smoke`, `amt_weekends`, `amt_weekdays`
-- **Merging**:
-  - Inner joins on `age` to combine the three datasets into a single `combined` DataFrame.
-- **Missing value handling**:
-  - Numerical features: median imputation.
-  - Categorical features: mode imputation.
-- **Feature engineering**:
-  - `bmi_category` derived from numeric `bmi`:
-    - Underweight / Normal / Overweight / Obese.
-- **EDA (examples)**:
-  - Diabetes outcome distribution (`outcome`).
-  - Heart disease distribution (`heart_disease`).
-  - Smoking vs heart disease (countplot).
-  - Correlation heatmap for numeric features.
+diabetes.csv
+heart.csv
+smoking.csv
 
-**Output:**
-- Cleaned, merged dataset saved as:
-  - `combined_cleaned.csv`
+After preprocessing and integration:
 
----
+combined_cleaned.csv
 
-### Clustering (K-Means + Agglomerative)
+Derived datasets:
 
-Notebook: `models.ipynb`
+combined_cleaned_bmi_glucose.csv
+combined_cleaned_bmi_age.csv
+combined_cleaned_glucose_age.csv
+3. Notebooks Used
+combined_analysis.ipynb
 
-**Goal:** Unsupervised clustering of `combined_cleaned.csv` using:
-- **K-Means** (with `k` chosen by silhouette score over `k=2..10`)
-- **Agglomerative clustering** (hierarchical; fit on a sample for speed and using `linkage="average"` with `n_clusters=best_k`)
+Performs:
 
-**Preprocessing (for clustering):**
-- One-hot encoding of categoricals (`pd.get_dummies(..., drop_first=True)`)
-- Median imputation (`SimpleImputer(strategy="median")`)
-- Feature scaling (`StandardScaler`)
+Data cleaning
+Data preprocessing
+Dataset integration
+Feature engineering
+Exploratory Data Analysis (EDA)
 
-**Outputs written by `models.ipynb`:**
-- `combined_cleaned_kmeans.csv`
-- `combined_cleaned_agglomerative.csv`
-- `combined_cleaned_clusters_all.csv`
-- `agglomerative_dendrogram.png`
+Output file:
 
----
+combined_cleaned.csv
+models.ipynb
 
-## 2. Environment & Dependencies
+Performs clustering analysis on derived datasets:
 
-This project uses Python 3.x and the scientific Python stack.
+K-Means clustering outputs:
+combined_cleaned_bmi_glucose_kmeans.csv
+combined_cleaned_bmi_age_kmeans.csv
+combined_cleaned_glucose_age_kmeans.csv
+Agglomerative clustering outputs:
+combined_cleaned_bmi_glucose_agglomerative.csv
+combined_cleaned_bmi_age_agglomerative.csv
+combined_cleaned_glucose_age_agglomerative.csv
+Combined cluster results:
+combined_cleaned_clusters_all.csv
+combined_cleaned_bmi_glucose_clusters_all.csv
+combined_cleaned_bmi_age_clusters_all.csv
+combined_cleaned_glucose_age_clusters_all.csv
+4. Generated Visualizations
+K-Means Scatter Plots
+kmeans_scatter_bmi_glucose.png
+kmeans_scatter_bmi_age.png
+kmeans_scatter_glucose_age.png
+Agglomerative Scatter Plots
+agglomerative_scatter_bmi_glucose.png
+agglomerative_scatter_bmi_age.png
+agglomerative_scatter_glucose_age.png
+Dendrograms
+agglomerative_dendrogram_bmi_glucose.png
+agglomerative_dendrogram_bmi_age.png
+agglomerative_dendrogram_glucose_age.png
+5. Python Scripts
+kmeans_cluster.py – performs K-Means clustering
+kmeans_cluster_plot.py – generates K-Means cluster visualization plots
+6. Libraries Used
+Python
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+scipy
+jupyter notebook
 
-**Core libraries:**
-- `pandas`
-- `numpy`
-- `matplotlib`
-- `seaborn`
-- `scikit-learn`
-- `scipy`
-- `jupyter` / `notebook` / `nbconvert`
+Install dependencies:
 
-Install with:
-
-```bash
-python -m pip install pandas numpy matplotlib seaborn scikit-learn scipy notebook nbconvert
-```
-
----
-
-## 3. How to Run the Notebooks
-
-### Step 1: Clone the repository
-
-```bash
+pip install pandas numpy matplotlib seaborn scikit-learn scipy notebook
+7. How to Run the Project
+Step 1: Clone repository
 git clone https://github.com/littlestuart07/fods_project.git
 cd fods_project
-```
+Step 2: Run data preprocessing notebook
 
-### Step 2: Ensure data files are present
+Open:
 
-The repository already includes:
-- `diabetes.csv`
-- `heart.csv`
-- `smoking.csv`
-- `combined_cleaned.csv` (can also be regenerated by running `combined_analysis.ipynb`)
+combined_analysis.ipynb
 
-### Step 3: Combined analysis (optional if you want to regenerate `combined_cleaned.csv`)
+Run all cells to generate:
 
-1. Open `combined_analysis.ipynb` in Jupyter / VS Code / Google Colab.
-2. Run all cells from top to bottom.
-3. Confirm that `combined_cleaned.csv` is (re)created in the project folder.
+combined_cleaned.csv
 
-### Step 4: Clustering (K-Means + Agglomerative)
+Step 3: Run clustering notebook
 
-1. Open `models.ipynb`.
-2. Run all cells from top to bottom.
-3. Confirm the notebook created/updated:
-   - `combined_cleaned_kmeans.csv`
-   - `combined_cleaned_agglomerative.csv`
-   - `combined_cleaned_clusters_all.csv`
-   - `agglomerative_dendrogram.png`
-4. Optional: run `kmeans_cluster_plot.py` to generate `kmeans_clusters_pca.png`.
+Open:
 
----
+models.ipynb
 
-## 4. Interpretation (High Level)
+Run all cells to generate:
 
-- Combining diabetes, heart disease, and smoking datasets enables a richer analysis of health risks than any single dataset alone.
-- Missing value imputation and feature engineering (e.g., `bmi_category`) help make the data more suitable for clustering.
-- K-Means uses silhouette score to choose `k`; Agglomerative clustering is visualized with a dendrogram.
-- Feature scaling (`StandardScaler`) helps distance-based clustering behave more consistently.
+cluster CSV files
+scatter plots
+dendrogram images
+8. Key Learning Outcomes
+Data cleaning and preprocessing of healthcare datasets
+Dataset integration from multiple sources
+Exploratory Data Analysis (EDA)
+Feature engineering
+K-Means clustering implementation
+Agglomerative hierarchical clustering
+Dendrogram interpretation
+Visualization of health indicator relationships
+9. Project Repository
 
----
+GitHub Repository:
 
-## 5. License
+https://github.com/littlestuart07/fods_project
 
-This repository is for educational and academic purposes.
+10. Academic Purpose
 
-**This fork / copy:** [https://github.com/littlestuart07/fods_project](https://github.com/littlestuart07/fods_project)
+This project is developed for Foundation of Data Science (FODS) coursework.
 
-If you reuse or extend this work, please credit this repository. The project builds on ideas and workflows from the original FODS-DA course-style analysis; acknowledge both this repo and any upstream sources you rely on.
+It demonstrates how data science techniques can be used to analyze healthcare datasets and discover patterns related to chronic disease risk factors.
