@@ -52,104 +52,24 @@ Notebook: `combined_analysis.ipynb`
 
 ---
 
-### Modeling & advanced Random Forest tuning
+### Clustering (K-Means + Agglomerative)
 
 Notebook: `models.ipynb`
 
-**Goal:** Predict heart disease (`heart_disease`) using multiple machine learning models and compare performance.
+**Goal:** Unsupervised clustering of `combined_cleaned.csv` using:
+- **K-Means** (with `k` chosen by silhouette score over `k=2..10`)
+- **Agglomerative clustering** (hierarchical; fit on a sample for speed and using `linkage="average"` with `n_clusters=best_k`)
 
-**Input:**
-- `combined_cleaned.csv` produced in `combined_analysis.ipynb`.
+**Preprocessing (for clustering):**
+- One-hot encoding of categoricals (`pd.get_dummies(..., drop_first=True)`)
+- Median imputation (`SimpleImputer(strategy="median")`)
+- Feature scaling (`StandardScaler`)
 
-**Preprocessing:**
-- Split into:
-  - Features `X` (all columns except `heart_disease`)
-  - Target `y` (`heart_disease`)
-- One-hot encode categorical variables via `pd.get_dummies(drop_first=True)`.
-- Train–test split:
-  - `test_size=0.2`
-  - `random_state=42`
-  - `stratify=y` to preserve class balance.
-- Imputation + scaling:
-  - Median imputation (`SimpleImputer(strategy="median")`) on all numeric columns.
-  - Standardization (`StandardScaler`) on features.
-
-**Models trained (STEP 7):**
-- Logistic Regression (`LogisticRegression(max_iter=300)`)
-- Decision Tree (`DecisionTreeClassifier(max_depth=4, random_state=42)`)
-- Random Forest (`RandomForestClassifier(n_estimators=50, max_depth=5, random_state=42)`)
-- K-Nearest Neighbors (`KNeighborsClassifier(n_neighbors=15)`)
-- Gaussian Naive Bayes (`GaussianNB`)
-
-For each model, the notebook prints accuracy on the test set.  
-For KNN, a **5-fold cross-validation** accuracy is also integrated using a pipeline (imputation + scaling + KNN) to avoid overfitting and report more realistic performance.
-
-**Typical accuracy ranges (may vary with data):**
-- Logistic Regression: ~71%
-- Decision Tree: ~75%
-- Random Forest (baseline): ~79%
-- KNN (k=15, with CV): ~82–88%
-- Naive Bayes: ~70%
-
-**Additional evaluation (STEP 8–10):**
-- `classification_report` for each model (precision, recall, F1-score).
-- Bar plot comparing model accuracies.
-- Best model selection based on accuracy.
-
----
-
-### Advanced Random Forest tuning (STEP 11+)
-
-The project includes an **aggressive hyperparameter search** for Random Forest using `GridSearchCV` with `StratifiedKFold` cross-validation.
-
-**Parameter grid:**
-
-```python
-param_grid = {
-    'n_estimators': [100, 200, 300],
-    'max_depth': [None, 6, 10, 15],
-    'min_samples_split': [2, 5, 10],
-    'min_samples_leaf': [1, 2, 4],
-    'class_weight': [None, 'balanced']
-}
-```
-
-**Setup:**
-- Base estimator:
-
-  ```python
-  rf_base = RandomForestClassifier(random_state=42, n_jobs=-1)
-  ```
-
-- Cross-validation:
-
-  ```python
-  cv_strategy = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-  ```
-
-- Grid search:
-
-  ```python
-  grid = GridSearchCV(
-      estimator=rf_base,
-      param_grid=param_grid,
-      cv=cv_strategy,
-      scoring='accuracy',
-      n_jobs=-1,
-      verbose=1
-  )
-  ```
-
-The notebook prints:
-- **Best parameters** from the grid search.
-- **Best cross-validation accuracy**.
-- **Test accuracy before tuning** (baseline Random Forest from STEP 7).
-- **Test accuracy after tuning** (best estimator on `X_test`).
-- **Percentage improvement** in test accuracy.
-
-**Further evaluation (tuned model):**
-- Confusion matrix heatmap.
-- ROC curve and AUC.
+**Outputs written by `models.ipynb`:**
+- `combined_cleaned_kmeans.csv`
+- `combined_cleaned_agglomerative.csv`
+- `combined_cleaned_clusters_all.csv`
+- `agglomerative_dendrogram.png`
 
 ---
 
@@ -163,12 +83,13 @@ This project uses Python 3.x and the scientific Python stack.
 - `matplotlib`
 - `seaborn`
 - `scikit-learn`
+- `scipy`
 - `jupyter` / `notebook` / `nbconvert`
 
 Install with:
 
 ```bash
-python -m pip install pandas numpy matplotlib seaborn scikit-learn notebook nbconvert
+python -m pip install pandas numpy matplotlib seaborn scikit-learn scipy notebook nbconvert
 ```
 
 ---
@@ -196,24 +117,25 @@ The repository already includes:
 2. Run all cells from top to bottom.
 3. Confirm that `combined_cleaned.csv` is (re)created in the project folder.
 
-### Step 4: Modeling & tuning
+### Step 4: Clustering (K-Means + Agglomerative)
 
 1. Open `models.ipynb`.
 2. Run all cells from top to bottom.
-3. Review:
-   - Model accuracy printouts for all 5 models.
-   - Accuracy comparison bar plot.
-   - Random Forest tuning summary (best params, CV score, before/after test accuracy, % improvement).
-   - Confusion matrix and ROC curve for the tuned Random Forest.
+3. Confirm the notebook created/updated:
+   - `combined_cleaned_kmeans.csv`
+   - `combined_cleaned_agglomerative.csv`
+   - `combined_cleaned_clusters_all.csv`
+   - `agglomerative_dendrogram.png`
+4. Optional: run `kmeans_cluster_plot.py` to generate `kmeans_clusters_pca.png`.
 
 ---
 
 ## 4. Interpretation (High Level)
 
 - Combining diabetes, heart disease, and smoking datasets enables a richer analysis of health risks than any single dataset alone.
-- Missing value imputation and feature engineering (e.g., `bmi_category`) help make the data more suitable for modeling.
-- Tree-based models and KNN generally perform best, with Random Forest and tuned KNN giving strong, but still realistic, accuracies.
-- Cross-validation and a wide hyperparameter grid ensure that performance metrics are robust and not just a result of overfitting to a single train/test split.
+- Missing value imputation and feature engineering (e.g., `bmi_category`) help make the data more suitable for clustering.
+- K-Means uses silhouette score to choose `k`; Agglomerative clustering is visualized with a dendrogram.
+- Feature scaling (`StandardScaler`) helps distance-based clustering behave more consistently.
 
 ---
 
